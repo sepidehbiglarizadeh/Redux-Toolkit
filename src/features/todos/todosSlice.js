@@ -29,6 +29,24 @@ export const addAsyncTodos = createAsyncThunk(
   }
 );
 
+export const toggleCompletedAsyncTodos = createAsyncThunk(
+  "todos/toggleCompleteAsync",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/todos/${payload.id}`,
+        {
+          title:payload.title,
+          completed: payload.completed,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue([], error);
+    }
+  }
+);
+
 const initialState = {
   todos: [],
   error: null,
@@ -75,6 +93,12 @@ const todoSlice = createSlice({
     },
     [addAsyncTodos.fulfilled]: (state, action) => {
       state.todos.push(action.payload);
+    },
+    [toggleCompletedAsyncTodos.fulfilled]: (state, action) => {
+      const selectedTodo = state.todos.find(
+        (todo) => todo.id === action.payload.id
+      );
+      selectedTodo.completed = action.payload.completed;
     },
   },
 });
