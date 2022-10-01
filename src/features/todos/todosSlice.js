@@ -30,17 +30,29 @@ export const addAsyncTodos = createAsyncThunk(
 );
 
 export const toggleCompletedAsyncTodos = createAsyncThunk(
-  "todos/toggleCompleteAsync",
+  "todos/toggleCompletedAsyncTodos",
   async (payload, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         `http://localhost:3001/todos/${payload.id}`,
         {
-          title:payload.title,
+          title: payload.title,
           completed: payload.completed,
         }
       );
       return response.data;
+    } catch (error) {
+      return rejectWithValue([], error);
+    }
+  }
+);
+
+export const deleteAsyncTodo = createAsyncThunk(
+  "todos/deleteAsyncTodo",
+  async (payload, { rejectWithValue }) => {
+    try {
+      await axios.delete(`http://localhost:3001/todos/${payload.id}`);
+      return { id: payload.id };
     } catch (error) {
       return rejectWithValue([], error);
     }
@@ -100,6 +112,9 @@ const todoSlice = createSlice({
       );
       selectedTodo.completed = action.payload.completed;
     },
+    [deleteAsyncTodo.fulfilled]:(state,action)=>{
+      state.todos = state.todos.filter((todo)=> todo.id !== action.payload.id);
+    }
   },
 });
 
