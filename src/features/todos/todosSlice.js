@@ -8,7 +8,7 @@ export const getAsyncTodos = createAsyncThunk(
       const respons = await axios.get("http://localhost:3001/todos/");
       return respons.data;
     } catch (error) {
-      return rejectWithValue([], error);
+      return rejectWithValue(error);
     }
   }
 );
@@ -92,29 +92,34 @@ const todoSlice = createSlice({
     [getAsyncTodos.fulfilled]: (state, action) => {
       return { ...state, todos: action.payload, loading: false, error: null };
     },
+
     [getAsyncTodos.pending]: (state, action) => {
       return { ...state, todos: [], loading: true, error: null };
     },
+
     [getAsyncTodos.rejected]: (state, action) => {
       return {
         ...state,
         todos: [],
         loading: false,
-        error: action.error.message,
+        error: action.payload.message,
       };
     },
+
     [addAsyncTodos.fulfilled]: (state, action) => {
       state.todos.push(action.payload);
     },
+
     [toggleCompletedAsyncTodos.fulfilled]: (state, action) => {
       const selectedTodo = state.todos.find(
         (todo) => todo.id === action.payload.id
       );
       selectedTodo.completed = action.payload.completed;
     },
-    [deleteAsyncTodo.fulfilled]:(state,action)=>{
-      state.todos = state.todos.filter((todo)=> todo.id !== action.payload.id);
-    }
+
+    [deleteAsyncTodo.fulfilled]: (state, action) => {
+      state.todos = state.todos.filter((todo) => todo.id !== action.payload.id);
+    },
   },
 });
 
